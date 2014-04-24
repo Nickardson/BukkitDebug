@@ -1,0 +1,17 @@
+name: BukkitDebug
+version: 0.0
+description: Allows you to inspect running plugins (even ones you don't manage) and examine the server state.
+author: Nickardson
+authors: [Nickardson]
+
+main: com.nickardson.bukkitdebug.BukkitDebug
+
+commands:
+ debug:
+   description: Generates a debug key, allowing you to access the debug page.
+   permission: bukkitdebug.debug
+
+permissions:
+ bukkitdebug.debug:
+   description: Allows you to generate a debug key.
+   default: op
