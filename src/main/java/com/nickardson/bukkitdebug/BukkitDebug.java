@@ -1,10 +1,12 @@
 package com.nickardson.bukkitdebug;
 
 import com.nickardson.bukkitdebug.script.JavaScriptEngine;
+import com.nickardson.bukkitdebug.web.EvalHandler;
 import com.nickardson.bukkitdebug.web.ProxyHandler;
 import com.nickardson.bukkitdebug.web.RootHandler;
 import com.nickardson.bukkitdebug.web.SubHandler;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class BukkitDebug extends JavaPlugin {
     final String HTDOCS_ROOT = "htdocs";
@@ -24,10 +27,13 @@ public class BukkitDebug extends JavaPlugin {
     Server server;
     JavaScriptEngine engine;
     ScriptableObject global;
+    public static ConcurrentLinkedQueue<String> evals;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void onEnable() {
+        evals = new ConcurrentLinkedQueue<String>();
+
         File htdocs = new File(getDataFolder(), HTDOCS_DESTINATION);
 
         if (!htdocs.exists() || !htdocs.isDirectory()) {
@@ -51,6 +57,7 @@ public class BukkitDebug extends JavaPlugin {
         HandlerCollection handlers = new HandlerCollection();
         handlers.addHandler(new RootHandler(htdocs));
         handlers.addHandler(new SubHandler("/proxy", new ProxyHandler()));
+        handlers.addHandler(new SubHandler("/eval", new EvalHandler()));
         handlers.addHandler(new SubHandler("/test", new AbstractHandler() {
             @Override
             public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -72,6 +79,24 @@ public class BukkitDebug extends JavaPlugin {
 
         engine = new JavaScriptEngine();
         global = engine.createScope();
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                String code = evals.poll();
+
+                if (code != null) {
+                    engine.enter();
+                    try {
+                        engine.eval(global, code);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        engine.exit();
+                    }
+                }
+            }
+        }.runTaskTimer(this, 0, 1);
     }
 
     @Override

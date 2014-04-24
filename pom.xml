@@ -23,14 +23,6 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>org.mozilla.javascript</pattern>
-                                    <shadedPattern>com.nickardson.bukkitdebug.mozilla.javascript</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.mozilla.classfile</pattern>
-                                    <shadedPattern>com.nickardson.bukkitdebug.mozilla.classfile</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.eclipse</pattern>
                                     <shadedPattern>com.nickardson.bukkitdebug.org.eclipse</shadedPattern>
                                 </relocation>
