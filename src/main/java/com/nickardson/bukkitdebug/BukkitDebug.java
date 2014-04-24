@@ -1,10 +1,19 @@
 package com.nickardson.bukkitdebug;
 
+import com.nickardson.bukkitdebug.script.JavaScriptEngine;
+import com.nickardson.bukkitdebug.web.ProxyHandler;
 import com.nickardson.bukkitdebug.web.RootHandler;
+import com.nickardson.bukkitdebug.web.SubHandler;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.mozilla.javascript.ScriptableObject;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 
@@ -13,6 +22,8 @@ public class BukkitDebug extends JavaPlugin {
     final String HTDOCS_DESTINATION = "htdocs";
 
     Server server;
+    JavaScriptEngine engine;
+    ScriptableObject global;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
@@ -39,6 +50,17 @@ public class BukkitDebug extends JavaPlugin {
 
         HandlerCollection handlers = new HandlerCollection();
         handlers.addHandler(new RootHandler(htdocs));
+        handlers.addHandler(new SubHandler("/proxy", new ProxyHandler()));
+        handlers.addHandler(new SubHandler("/test", new AbstractHandler() {
+            @Override
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                response.setContentType("text/html;charset=utf-8");
+                response.setStatus(HttpServletResponse.SC_OK);
+                baseRequest.setHandled(true);
+
+                response.getWriter().println("<h1>Hello World</h1>");
+            }
+        }));
         server.setHandler(handlers);
 
         try {
@@ -47,12 +69,27 @@ public class BukkitDebug extends JavaPlugin {
             getLogger().severe("Unable to start BukkitDebug server!");
             e.printStackTrace();
         }
+
+        engine = new JavaScriptEngine();
+        global = engine.createScope();
     }
 
     @Override
     public void onDisable() {
         try {
-            server.stop();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        server.stop();
+                    } catch (Exception e) {
+                        getLogger().severe("Unable to stop BukkitDebug server!");
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
+            server.join();
         } catch (Exception e) {
             getLogger().severe("Unable to stop BukkitDebug server!");
             e.printStackTrace();
