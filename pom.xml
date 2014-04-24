@@ -65,5 +65,10 @@
             <artifactId>jetty-server</artifactId>
             <version>9.2.0.M0</version>
         </dependency>
+        <dependency>
+            <groupId>rhino</groupId>
+            <artifactId>js</artifactId>
+            <version>1.7R2</version>
+        </dependency>
     </dependencies>
 </project>
