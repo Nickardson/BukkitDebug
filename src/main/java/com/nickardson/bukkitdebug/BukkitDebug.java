@@ -1,13 +1,12 @@
 package com.nickardson.bukkitdebug;
 
+import com.nickardson.bukkitdebug.web.RootHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.resource.Resource;
 
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
 
 public class BukkitDebug extends JavaPlugin {
     final String HTDOCS_ROOT = "htdocs";
@@ -18,34 +17,34 @@ public class BukkitDebug extends JavaPlugin {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void onEnable() {
-        try {
-            File htdocs = new File(getDataFolder(), HTDOCS_DESTINATION);
+        File htdocs = new File(getDataFolder(), HTDOCS_DESTINATION);
 
-            if (!htdocs.exists() || !htdocs.isDirectory()) {
-                htdocs.mkdir();
-                List<String> dir = FileUtils.dir(getFile(), HTDOCS_ROOT);
-                for (String filename : dir) {
-                    File destination = new File(htdocs, filename.substring(HTDOCS_ROOT.length() + 1));
-                    destination.getParentFile().mkdirs();
+        if (!htdocs.exists() || !htdocs.isDirectory()) {
+            htdocs.mkdir();
+
+            for (String filename : FileUtils.dir(getFile(), HTDOCS_ROOT)) {
+                File destination = new File(htdocs, filename.substring(HTDOCS_ROOT.length() + 1));
+                destination.getParentFile().mkdirs();
+                try {
                     FileUtils.copyResourceToFile("/" + filename, destination);
+                } catch (IOException e) {
+                    getLogger().severe("Unable to extract: " + filename);
+                    e.printStackTrace();
                 }
             }
+        }
 
-            server = new Server(13370);
+        server = new Server(13370);
+        server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
 
-            ResourceHandler handlerHtdocs = new ResourceHandler();
-            handlerHtdocs.setDirectoriesListed(true);
-            handlerHtdocs.setBaseResource(Resource.newResource(htdocs));
+        HandlerCollection handlers = new HandlerCollection();
+        handlers.addHandler(new RootHandler(htdocs));
+        server.setHandler(handlers);
 
-            HandlerCollection handlers = new HandlerCollection();
-            handlers.addHandler(handlerHtdocs);
-
-            server.setHandler(handlers);
-
-            server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
-
+        try {
             server.start();
         } catch (Exception e) {
+            getLogger().severe("Unable to start BukkitDebug server!");
             e.printStackTrace();
         }
     }
@@ -55,6 +54,7 @@ public class BukkitDebug extends JavaPlugin {
         try {
             server.stop();
         } catch (Exception e) {
+            getLogger().severe("Unable to stop BukkitDebug server!");
             e.printStackTrace();
         }
     }
