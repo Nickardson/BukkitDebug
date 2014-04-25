@@ -24,3 +24,13 @@ $(document).ready(function(){
     // the size again
     editor.getSession().on('change', heightUpdateFunction);
 });
+
+editor.load = function(url){
+    $.ajax({
+        "url": url,
+        "dataType": "text"
+    }).done(function (src) {
+        editor.setValue(src);
+        editor.gotoLine(0)
+    });
+};

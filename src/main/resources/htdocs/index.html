@@ -76,13 +76,7 @@
     $("#navbar").load("/ajax/navbar.html");
     $("#sidebar").load("/ajax/sidebar.html");
 
-    $.ajax({
-        url: "/code/example.js",
-        dataType: "text"
-    }).done(function (src) {
-        editor.setValue(src);
-        editor.gotoLine(0)
-    });
+    editor.load("/code/example.js");
 </script>
 </body>
 </html>
