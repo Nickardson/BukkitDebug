@@ -17,10 +17,7 @@ public class EvalHandler extends AbstractHandler {
         String code = baseRequest.getParameter("code");
 
         if (code != null && code.length() > 0) {
-            response.setStatus(HttpServletResponse.SC_OK);
             BukkitDebug.evals.add(code);
-        } else {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 }
