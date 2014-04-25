@@ -29,6 +29,16 @@ public class BukkitDebug extends JavaPlugin {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+
+        if (!getConfigurationEnabled()) {
+            getLogger().severe("------------------------------------------------");
+            getLogger().severe("BukkitDebug is NOT enabled!");
+            getLogger().severe("Configure a password in the config, then enable.");
+            getLogger().severe("------------------------------------------------");
+            return;
+        }
+
         evals = new ConcurrentLinkedQueue<String>();
 
         File htdocs = new File(getDataFolder(), HTDOCS_DESTINATION);
@@ -48,7 +58,7 @@ public class BukkitDebug extends JavaPlugin {
             }
         }
 
-        server = new Server(13370);
+        server = new Server(getConfigurationPort());
         server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
 
         HandlerCollection handlers = new HandlerCollection();
@@ -67,7 +77,9 @@ public class BukkitDebug extends JavaPlugin {
         }));
 
         // Route all requests through the security handler.
-        server.setHandler(new SecureHandler(server, handlers));
+        SecureHandler secureHandler = new SecureHandler(server, handlers);
+        secureHandler.addAccount(getConfigurationUsername(), getConfigurationPassword(), "user");
+        server.setHandler(secureHandler);
 
         try {
             server.start();
@@ -100,6 +112,10 @@ public class BukkitDebug extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (server == null || server.isRunning()) {
+            return;
+        }
+
         try {
             new Thread(new Runnable() {
                 @Override
@@ -118,5 +134,21 @@ public class BukkitDebug extends JavaPlugin {
             getLogger().severe("Unable to stop BukkitDebug server!");
             e.printStackTrace();
         }
+    }
+
+    public boolean getConfigurationEnabled() {
+        return getConfig().getBoolean("enabled", false);
+    }
+
+    public int getConfigurationPort() {
+        return getConfig().getInt("port", 13370);
+    }
+
+    public String getConfigurationUsername() {
+        return getConfig().getString("username", "admin");
+    }
+
+    public String getConfigurationPassword() {
+        return getConfig().getString("password", "password");
     }
 }

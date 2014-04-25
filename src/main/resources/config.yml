@@ -1,0 +1,14 @@
+# Whether BukkitDebug is enabled.  Disabled by default, so CHANGE YOUR PASSWORD BEFORE ENABLING!
+# To enable, change to 'true'.
+enabled: false
+
+# The port of the debug server.
+port: 13370
+
+# Debug server username.
+username: admin
+
+# Debug server password.
+# CHANGE IT!
+# Anybody who has the username and password has control over your server!
+password: password
