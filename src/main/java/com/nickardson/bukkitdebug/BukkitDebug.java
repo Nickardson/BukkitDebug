@@ -1,10 +1,7 @@
 package com.nickardson.bukkitdebug;
 
 import com.nickardson.bukkitdebug.script.JavaScriptEngine;
-import com.nickardson.bukkitdebug.web.EvalHandler;
-import com.nickardson.bukkitdebug.web.ProxyHandler;
-import com.nickardson.bukkitdebug.web.RootHandler;
-import com.nickardson.bukkitdebug.web.SubHandler;
+import com.nickardson.bukkitdebug.web.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.eclipse.jetty.server.Request;
@@ -68,7 +65,9 @@ public class BukkitDebug extends JavaPlugin {
                 response.getWriter().println("<h1>Hello World</h1>");
             }
         }));
-        server.setHandler(handlers);
+
+        // Route all requests through the security handler.
+        server.setHandler(new SecureHandler(server, handlers));
 
         try {
             server.start();
