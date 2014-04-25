@@ -36,34 +36,13 @@
         <div id="sidebar"></div>
 
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-            <h1 class="page-header">Dashboard</h1>
-
+            <h1 class="page-header">Code Input</h1>
             <div id="editor"></div>
 
             <br/>
 
-            <div class="row placeholders">
-                <div class="col-xs-6 col-sm-3 placeholder">
-                    <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
-                    <h4>Label</h4>
-                    <span class="text-muted">Something else</span>
-                </div>
-                <div class="col-xs-6 col-sm-3 placeholder">
-                    <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
-                    <h4>Label</h4>
-                    <span class="text-muted">Something else</span>
-                </div>
-                <div class="col-xs-6 col-sm-3 placeholder">
-                    <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
-                    <h4>Label</h4>
-                    <span class="text-muted">Something else</span>
-                </div>
-                <div class="col-xs-6 col-sm-3 placeholder">
-                    <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
-                    <h4>Label</h4>
-                    <span class="text-muted">Something else</span>
-                </div>
-            </div>
+            <button id="runcode" class="btn btn-primary">Run <i class="glyphicon glyphicon-play"></i></button>
+
         </div>
     </div>
 </div>
@@ -77,6 +56,19 @@
     $("#sidebar").load("/ajax/sidebar.html");
 
     editor.load("/code/example.js");
+
+    $("#runcode").click(function () {
+        $("#runcode").addClass("disabled");
+        $.ajax({
+            url: "/eval",
+            data: {
+                "code": editor.getValue()
+            },
+            "complete": function () {
+                $("#runcode").removeClass("disabled");
+            }
+        });
+    });
 </script>
 </body>
 </html>
