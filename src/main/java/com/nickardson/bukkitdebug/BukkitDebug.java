@@ -91,6 +91,10 @@ public class BukkitDebug extends JavaPlugin {
         engine = new JavaScriptEngine();
         global = engine.createScope();
 
+        engine.enter();
+        engine.evalStream(global, getClass().getResourceAsStream("/js/main.js"));
+        engine.exit();
+
         new BukkitRunnable() {
             @Override
             public void run() {

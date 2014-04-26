@@ -2,6 +2,9 @@ package com.nickardson.bukkitdebug.script;
 
 import org.mozilla.javascript.*;
 
+import java.io.InputStream;
+import java.util.Scanner;
+
 public class JavaScriptEngine {
     public JavaScriptEngine() {
 
@@ -76,8 +79,8 @@ public class JavaScriptEngine {
      * @param scope The scope to run in.
      * @param code The code to run.
      */
-    public void eval(Scriptable scope, String code) {
-        eval(scope, code, "eval");
+    public Object eval(Scriptable scope, String code) {
+        return eval(scope, code, "eval");
     }
 
     /**
@@ -88,5 +91,12 @@ public class JavaScriptEngine {
      */
     public Object eval(Scriptable scope, String code, String source) {
         return getContext().evaluateString(scope, code, source, 1, null);
+    }
+
+    public Object evalStream(Scriptable scope, InputStream stream) {
+        Scanner s = new Scanner(stream);
+        String code  = s.useDelimiter("\\Z").next();
+        s.close();
+        return eval(scope, code);
     }
 }
