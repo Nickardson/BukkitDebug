@@ -60,6 +60,10 @@ public class JavaScriptEngine {
     public ScriptableObject createScope() {
         enter();
         ScriptableObject scope = new ImporterTopLevel(getContext());
+
+        scope.defineProperty("reflection", new APIReflection(), ScriptableObject.PERMANENT);
+        evalStream(scope, getClass().getResourceAsStream("/js/main.js"));
+
         Context.exit();
         return scope;
     }

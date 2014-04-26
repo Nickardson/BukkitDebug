@@ -1,6 +1,5 @@
 package com.nickardson.bukkitdebug;
 
-import com.nickardson.bukkitdebug.script.APIReflection;
 import com.nickardson.bukkitdebug.script.JavaScriptEngine;
 import com.nickardson.bukkitdebug.script.Stringifier;
 import com.nickardson.bukkitdebug.web.*;
@@ -96,9 +95,6 @@ public class BukkitDebug extends JavaPlugin {
 
         engine = new JavaScriptEngine();
         global = engine.createScope();
-        global.defineProperty("reflection", new APIReflection(), ScriptableObject.PERMANENT);
-
-        engine.evalStream(global, getClass().getResourceAsStream("/js/main.js"));
 
         new BukkitRunnable() {
             @Override
