@@ -5,5 +5,5 @@ function print(args) {
     if (args == undefined) {
         args = "undefined";
     }
-    java.lang.System.out.println(args);
+    java.lang.System.out.println(String(args));
 }
