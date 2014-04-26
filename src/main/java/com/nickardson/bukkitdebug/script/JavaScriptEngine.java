@@ -25,7 +25,7 @@ public class JavaScriptEngine {
         Context.enter();
         Context c = getContext();
         c.setOptimizationLevel(optimization);
-        c.setLanguageVersion(Context.VERSION_1_7);
+        c.setLanguageVersion(Context.VERSION_1_8);
     }
 
     /**

@@ -67,9 +67,9 @@
             <version>${my.jetty.version}</version>
         </dependency>
         <dependency>
-            <groupId>rhino</groupId>
-            <artifactId>js</artifactId>
-            <version>1.7R2</version>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+            <version>1.7R4</version>
         </dependency>
     </dependencies>
 </project>
