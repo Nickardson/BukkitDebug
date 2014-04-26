@@ -1,5 +1,9 @@
 package com.nickardson.bukkitdebug.script;
 
+import com.nickardson.bukkitdebug.BukkitDebug;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeJavaObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +27,19 @@ public class Stringifier {
         if (i != null) {
             return i.stringify(o);
         }
-        return o.toString();
+
+        Object conv = Context.jsToJava(o, Object.class);
+        if (conv instanceof NativeJavaObject) {
+            conv = ((NativeJavaObject) conv).unwrap();
+        }
+
+        JavaScriptEngine engine = BukkitDebug.getPlugin(BukkitDebug.class).engine;
+        engine.enter();
+        try {
+            return Context.toString(conv);
+        } finally {
+            engine.exit();
+        }
     }
 
     public static interface Instance {
