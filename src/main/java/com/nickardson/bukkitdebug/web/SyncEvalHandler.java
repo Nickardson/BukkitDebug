@@ -3,7 +3,6 @@ package com.nickardson.bukkitdebug.web;
 import com.nickardson.bukkitdebug.BukkitDebug;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.mozilla.javascript.Context;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +20,6 @@ public class SyncEvalHandler extends AbstractHandler {
             BukkitDebug plugin = BukkitDebug.getPlugin(BukkitDebug.class);
 
             Object result = plugin.engine.eval(plugin.global, code, "remote-sync-code");
-            result = Context.jsToJava(result, Object.class);
             response.getWriter().write(plugin.stringifier.stringify(result));
         }
     }
