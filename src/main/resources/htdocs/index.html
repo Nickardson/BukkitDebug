@@ -18,6 +18,12 @@
             width: 100%;
             height: 400px;
         }
+
+        #consoleoutput {
+            font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+            height: 300px;
+            overflow-y: scroll;
+        }
     </style>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -38,6 +44,17 @@
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
             <h1 class="page-header">Code Input</h1>
             <div id="editor"></div>
+
+            <br/>
+
+            <h1 class="page-header">Console</h1>
+            <div id="console"></div>
+
+            <div class="panel panel-default">
+                <div class="panel-body" id="consoleoutput">
+
+                </div>
+            </div>
 
             <br/>
 
@@ -69,6 +86,38 @@
             }
         });
     });
+
+    var con = ace.edit("console");
+    con.setTheme("ace/theme/monokai");
+    con.getSession().setMode("ace/mode/javascript");
+    con.setValue("");
+
+    con.setFontSize(20);
+    con.setOption("showLineNumbers", false);
+    con.setOption("maxLines", 10);
+
+    function appendConsole(d) {
+        $("<div>").appendTo("#consoleoutput").append(d);
+
+        var out = $("#consoleoutput")[0];
+        out.scrollTop = out.scrollHeight;
+    }
+
+    con.commands.addCommand({
+        name: "send",
+        bindKey: {win: "Enter", mac: "Enter"},
+        exec: function(editor) {
+            $.ajax({
+                url: "/synceval",
+                data: {
+                    "code": con.getValue()
+                },
+                "success": function (d) {
+                    appendConsole(d);
+                }
+            });
+        }
+    })
 </script>
 </body>
 </html>
