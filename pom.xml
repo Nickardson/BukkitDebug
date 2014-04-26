@@ -45,6 +45,10 @@
         </repository>
     </repositories>
 
+    <properties>
+        <my.jetty.version>9.2.0.M0</my.jetty.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.bukkit</groupId>
@@ -55,12 +59,12 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>9.2.0.M0</version>
+            <version>${my.jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-security</artifactId>
-            <version>9.2.0.M0</version>
+            <version>${my.jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>rhino</groupId>
