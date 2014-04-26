@@ -44,6 +44,10 @@
         .json-key {
             color: #003DFF;
         }
+
+        .json-type {
+            color: #818181;
+        }
     </style>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -69,8 +73,8 @@
 
             <button id="runcode" class="btn btn-primary">Run <i class="glyphicon glyphicon-play"></i></button>
 
-            <h1 class="page-header">Console</h1>
-            <div id="console"></div>
+            <br/>
+            <br/>
 
             <div class="panel panel-default">
                 <div class="panel-body" id="consoleoutput">
@@ -107,33 +111,31 @@
         });
     });
 
-    var con = ace.edit("console");
-    con.setTheme("ace/theme/monokai");
-    con.getSession().setMode("ace/mode/javascript");
-    con.setValue("");
-
-    con.setFontSize(20);
-    con.setOption("showLineNumbers", false);
-    con.setOption("maxLines", 10);
-
-    function appendConsole(d) {
-        $("<div>").appendTo("#consoleoutput").append(d);
-
+    function scrollConsoleDown() {
         var out = $("#consoleoutput")[0];
         out.scrollTop = out.scrollHeight;
     }
 
-    con.commands.addCommand({
+    function appendConsole(d) {
+        $("<div>").appendTo("#consoleoutput").append(d);
+        scrollConsoleDown();
+    }
+
+    editor.commands.addCommand({
         name: "send",
-        bindKey: {win: "Enter", mac: "Enter"},
+        bindKey: {win: "Ctrl-Enter", mac: "Command-Option-Enter"},
         exec: function(editor) {
             $.ajax({
                 url: "/synceval",
                 data: {
-                    "code": con.getValue()
+                    "code": editor.getValue()
                 },
                 "success": function (d) {
                     appendConsole(d);
+                },
+                "error": function (e, b, status) {
+                    appendConsole($('<span class="label label-danger">' + status + '</span>'));
+                    console.log("error", status);
                 }
             });
         }
@@ -143,7 +145,23 @@
         if (typeof(data) == 'object') {
             var ul = $('<ul>');
             for (var i in data) {
-                ul.append($('<li data-key="' + String(i) + '">').prepend('<span class="json-key">' + i + '</span>').append(json2html(data[i])));
+                if (i == "displaytype") {
+                    continue;
+                }
+                var li = $('<li data-key="' + String(i) + '">'),
+                    key = $('<span class="json-key">' + i + '</span>'),
+                    json = json2html(data[i]);
+
+                li.append(key);
+
+                if (typeof data[i] == "object") {
+                    if (data[i].displaytype) {
+                        li.append('<span class="json-type"> (' + data[i].displaytype + ')</span>');
+                    }
+                }
+
+                li.append(json);
+                ul.append(li);
             }
             return ul;
         } else {

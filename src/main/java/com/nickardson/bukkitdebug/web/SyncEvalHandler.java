@@ -19,8 +19,12 @@ public class SyncEvalHandler extends AbstractHandler {
         if (code != null && code.length() > 0) {
             BukkitDebug plugin = BukkitDebug.getPlugin(BukkitDebug.class);
 
-            Object result = plugin.engine.eval(plugin.global, code, "remote-sync-code");
-            response.getWriter().write(plugin.stringifier.stringify(result));
+            try {
+                Object result = plugin.engine.eval(plugin.global, code, "remote-sync-code");
+                response.getWriter().write(plugin.stringifier.stringify(result));
+            } catch (Exception e) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            }
         }
     }
 }
