@@ -90,7 +90,12 @@ public class JavaScriptEngine {
      * @param source The name of the source.
      */
     public Object eval(Scriptable scope, String code, String source) {
-        return getContext().evaluateString(scope, code, source, 1, null);
+        enter();
+        try {
+            return getContext().evaluateString(scope, code, source, 1, null);
+        } finally {
+            exit();
+        }
     }
 
     public Object evalStream(Scriptable scope, InputStream stream) {

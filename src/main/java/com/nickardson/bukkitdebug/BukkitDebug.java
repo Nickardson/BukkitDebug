@@ -1,6 +1,7 @@
 package com.nickardson.bukkitdebug;
 
 import com.nickardson.bukkitdebug.script.JavaScriptEngine;
+import com.nickardson.bukkitdebug.script.Stringifier;
 import com.nickardson.bukkitdebug.web.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -21,9 +22,10 @@ public class BukkitDebug extends JavaPlugin {
     final String HTDOCS_ROOT = "htdocs";
     final String HTDOCS_DESTINATION = "htdocs";
 
-    Server server;
-    JavaScriptEngine engine;
-    ScriptableObject global;
+    public Server server;
+    public JavaScriptEngine engine;
+    public ScriptableObject global;
+    public Stringifier stringifier;
     public static ConcurrentLinkedQueue<String> evals;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -61,10 +63,13 @@ public class BukkitDebug extends JavaPlugin {
         server = new Server(getConfigurationPort());
         server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
 
+        stringifier = new Stringifier();
+
         HandlerCollection handlers = new HandlerCollection();
         handlers.addHandler(new RootHandler(htdocs));
         handlers.addHandler(new SubHandler("/proxy", new ProxyHandler()));
         handlers.addHandler(new SubHandler("/eval", new EvalHandler()));
+        handlers.addHandler(new SubHandler("/synceval", new SyncEvalHandler()));
         handlers.addHandler(new SubHandler("/test", new AbstractHandler() {
             @Override
             public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -91,9 +96,7 @@ public class BukkitDebug extends JavaPlugin {
         engine = new JavaScriptEngine();
         global = engine.createScope();
 
-        engine.enter();
         engine.evalStream(global, getClass().getResourceAsStream("/js/main.js"));
-        engine.exit();
 
         new BukkitRunnable() {
             @Override
@@ -101,13 +104,10 @@ public class BukkitDebug extends JavaPlugin {
                 String code = evals.poll();
 
                 if (code != null) {
-                    engine.enter();
                     try {
                         engine.eval(global, code);
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {
-                        engine.exit();
                     }
                 }
             }
