@@ -23,8 +23,10 @@ public class SyncEvalHandler extends AbstractHandler {
             try {
                 ScriptableObject scope = plugin.engine.createScope();
                 scope.put("output", scope, response.getWriter());
-                Object result = plugin.engine.eval(scope, code, "code");
-                response.getWriter().write(plugin.stringifier.stringify(result));
+                String result = plugin.stringifier.stringify(plugin.engine.eval(scope, code, "code"));
+                if (!result.equals("undefined")) {
+                    response.getWriter().write(result);
+                }
             } catch (Exception e) {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             }
