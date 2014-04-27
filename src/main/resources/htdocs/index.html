@@ -71,6 +71,7 @@
             <br/>
 
             <button id="runcode" class="btn btn-primary">Run <i class="glyphicon glyphicon-play"></i></button>
+            <button id="clearconsole" class="btn btn-default">Clear <i class="glyphicon glyphicon-remove"></i></button>
 
             <br/>
             <br/>
@@ -117,8 +118,10 @@
         });
     }
 
-    $("#runcode").click(function () {
-        runCode();
+    $("#runcode").click(runCode);
+
+    $("#clearconsole").click(function () {
+        $("#consoleoutput").empty();
     });
 
     function scrollConsoleDown() {
@@ -134,9 +137,7 @@
     editor.commands.addCommand({
         name: "send",
         bindKey: {win: "Ctrl-Enter", mac: "Command-Option-Enter"},
-        exec: function(editor) {
-            runCode();
-        }
+        exec: runCode
     });
 
     function json2html(data) {
@@ -146,20 +147,23 @@
                 if (i == "displaytype") {
                     continue;
                 }
-                var li = $('<li data-key="' + String(i) + '">'),
-                    key = $('<span class="json-key">' + i + '</span>'),
-                    json = json2html(data[i]);
 
-                li.append(key);
+                if (data.hasOwnProperty(i)) {
+                    var li = $('<li data-key="' + String(i) + '">'),
+                            key = $('<span class="json-key">' + i + '</span>'),
+                            json = json2html(data[i]);
 
-                if (typeof data[i] == "object") {
-                    if (data[i].displaytype) {
-                        li.append('<span class="json-type"> (' + data[i].displaytype + ')</span>');
+                    li.append(key);
+
+                    if (typeof data[i] == "object") {
+                        if (data[i].displaytype) {
+                            li.append('<span class="json-type"> (' + data[i].displaytype + ')</span>');
+                        }
                     }
-                }
 
-                li.append(json);
-                ul.append(li);
+                    li.append(json);
+                    ul.append(li);
+                }
             }
             return ul;
         } else {
