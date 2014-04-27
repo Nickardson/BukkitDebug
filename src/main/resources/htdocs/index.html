@@ -97,17 +97,28 @@
 
     editor.load("/code/example.js");
 
-    $("#runcode").click(function () {
+    function runCode() {
         $("#runcode").addClass("disabled");
         $.ajax({
             url: "/eval",
             data: {
                 "code": editor.getValue()
             },
+            "success": function (d) {
+                appendConsole(d);
+            },
+            "error": function (e, b, status) {
+                appendConsole($('<span class="label label-danger">' + status + '</span>'));
+                console.log("error", status);
+            },
             "complete": function () {
                 $("#runcode").removeClass("disabled");
             }
         });
+    }
+
+    $("#runcode").click(function () {
+        runCode();
     });
 
     function scrollConsoleDown() {
@@ -124,19 +135,7 @@
         name: "send",
         bindKey: {win: "Ctrl-Enter", mac: "Command-Option-Enter"},
         exec: function(editor) {
-            $.ajax({
-                url: "/synceval",
-                data: {
-                    "code": editor.getValue()
-                },
-                "success": function (d) {
-                    appendConsole(d);
-                },
-                "error": function (e, b, status) {
-                    appendConsole($('<span class="label label-danger">' + status + '</span>'));
-                    console.log("error", status);
-                }
-            });
+            runCode();
         }
     });
 
