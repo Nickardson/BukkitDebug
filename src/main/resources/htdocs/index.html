@@ -56,22 +56,25 @@
     <![endif]-->
 </head>
 
-<body>
+<body data-spy="scoll" data-target="#sidebarnav">
 
 <div id="navbar"></div>
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li class="active"><a href=""><i class="glyphicon glyphicon-star"></i> Main</a></li>
-                <li><a href="#"><i class="glyphicon glyphicon-eye-open"></i> Inspect</a></li>
-                <li><a href="#"><i class="glyphicon glyphicon-chevron-right"></i> Console</a></li>
+            <ul id="sidebarnav" class="nav nav-sidebar">
+                <li><a href="#main"><i class="glyphicon glyphicon-star"></i> Main</a></li>
+                <li><a href="#inspect"><i class="glyphicon glyphicon-eye-open"></i> Inspect</a></li>
+                <li><a href="#console"><i class="glyphicon glyphicon-chevron-right"></i> Console</a></li>
             </ul>
         </div>
 
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-            <h1 class="page-header">Code Input</h1>
+            <h1 id="main" class="page-header">Main</h1>
+            <h1 id="inspect" class="page-header">Inspect</h1>
+
+            <h1 id="console" class="page-header">Code Input</h1>
             <div id="editor"></div>
 
             <br/>
@@ -99,6 +102,8 @@
 <script src="/js/editor.js" type="text/javascript" charset="utf-8"></script>
 <script src="/js/inspect.js" type="text/javascript" charset="utf-8"></script>
 <script>
+    $("body").scrollspy();
+
     $("#navbar").load("/ajax/navbar.html");
 
     editor.load("/code/example.js");
