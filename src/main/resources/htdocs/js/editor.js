@@ -35,7 +35,13 @@ editor.load = function(url){
     });
 };
 
-function json2html(data) {
+/**
+ * Turns an object into a list of data.
+ * @param data The data to turn into an HTML tree.
+ * @param singlekey (Optional) If the given data is not an array or object, this is the key used.
+ * @returns {HTMLElement}
+ */
+function json2html(data, singlekey) {
     if (typeof(data) == 'object') {
         var ul = $('<ul>');
         for (var i in data) {
@@ -62,7 +68,7 @@ function json2html(data) {
         }
         return ul;
     } else {
-        return document.createTextNode(': ' + data);
+        return $('<span>' + (singlekey ? '<span class="json-key">'+singlekey+'</span>' : '') + ': ' + data + '</span>');
     }
 }
 
@@ -89,7 +95,7 @@ function collapsify(obj) {
             if (this == event.target) {
                 $(this).toggleClass('collapsed');
                 $(this).children('ul').toggle('medium');
-                $(this).trigger($(this).hasClass('collapsed') ? "collapsed" : "expanded", $(this).data("key"));
+                $(this).trigger($(this).hasClass('collapsed') ? "collapsed" : "expanded", [$(this).data("key"), $(this)]);
             }
             return false;
         }).addClass("collapsable collapsed").children('ul').css("display", "none");
