@@ -109,5 +109,7 @@ function appendConsole(d) {
 editor.commands.addCommand({
     name: "send",
     bindKey: {win: "Ctrl-Enter", mac: "Command-Option-Enter"},
-    exec: runCode
+    exec: function () {
+        runCode();
+    }
 });
