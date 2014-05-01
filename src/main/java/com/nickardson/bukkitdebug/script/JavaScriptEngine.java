@@ -53,6 +53,8 @@ public class JavaScriptEngine {
         this.optimization = optimization;
     }
 
+    private NativeObject global = new NativeObject();
+
     /**
      * Creates a new scope (global object).
      * @return The created scope.
@@ -62,6 +64,7 @@ public class JavaScriptEngine {
         ScriptableObject scope = new ImporterTopLevel(getContext());
 
         scope.defineProperty("reflection", new APIReflection(), ScriptableObject.PERMANENT);
+        scope.defineProperty("global", global, ScriptableObject.PERMANENT);
         evalStream(scope, getClass().getResourceAsStream("/js/main.js"));
 
         Context.exit();
