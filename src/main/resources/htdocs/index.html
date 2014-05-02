@@ -63,7 +63,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-12 col-md-6 col-lg-5">
+        <div class="col-sm-12 col-md-6">
             <h3 id="code">Code</h3>
             <div id="editor"></div>
 
@@ -73,7 +73,7 @@
             <button id="clearconsole" class="btn btn-default">Clear <i class="glyphicon glyphicon-remove"></i></button>
         </div>
 
-        <div class="col-sm-12 col-md-6 col-lg-7">
+        <div class="col-sm-12 col-md-6">
             <h3 id="output">Output</h3>
             <div class="panel" id="consoleoutput"></div>
         </div>
@@ -86,35 +86,47 @@
 <script src="/js/editor.js" type="text/javascript" charset="utf-8"></script>
 <script src="/js/inspect.js" type="text/javascript" charset="utf-8"></script>
 <script>
+$(function() {
     $("#navbar").load("/ajax/navbar.html");
 
     editor.load("/code/example.js");
 
-    function runCode() {
-        $("#runcode").addClass("disabled");
-        $.ajax({
+    function sendCode(code, silent) {
+        return $.ajax({
             url: "/eval",
             data: {
-                "code": editor.getValue()
+                "code": code
             },
             "success": function (d) {
-                appendConsole(d);
+                if (!silent) {
+                    appendConsole(d);
+                }
             },
             "error": function (e, b, status) {
-                appendConsole($('<span class="label label-danger">' + status + '</span>'));
-                console.log("error", status);
-            },
-            "complete": function () {
-                $("#runcode").removeClass("disabled");
+                if (!silent) {
+                    appendConsole($('<span class="label label-danger">' + status + '</span>'));
+                    console.log("error", status);
+                }
             }
         });
     }
 
-    $("#runcode").click(runCode);
+    function runCode(silent) {
+        $("#runcode").addClass("disabled");
+        sendCode(editor.getValue(), silent).complete(function () {
+            $("#runcode").removeClass("disabled");
+        });
+    }
+
+    $("#runcode").click(function () {
+        console.log("WHY");
+        runCode();
+    });
 
     $("#clearconsole").click(function () {
         $("#consoleoutput").empty();
     });
+});
 </script>
 </body>
 </html>
