@@ -86,37 +86,37 @@
 <script src="/js/editor.js" type="text/javascript" charset="utf-8"></script>
 <script src="/js/inspect.js" type="text/javascript" charset="utf-8"></script>
 <script>
+function sendCode(code, silent) {
+    return $.ajax({
+        url: "/eval",
+        data: {
+            "code": code
+        },
+        "success": function (d) {
+            if (!silent) {
+                appendConsole(d);
+            }
+        },
+        "error": function (e, b, status) {
+            if (!silent) {
+                appendConsole($('<span class="label label-danger">' + status + '</span>'));
+                console.log("error", status);
+            }
+        }
+    });
+}
+
+function runCode(silent) {
+    $("#runcode").addClass("disabled");
+    sendCode(editor.getValue(), silent).complete(function () {
+        $("#runcode").removeClass("disabled");
+    });
+}
+
 $(function() {
     $("#navbar").load("/ajax/navbar.html");
 
     editor.load("/code/example.js");
-
-    function sendCode(code, silent) {
-        return $.ajax({
-            url: "/eval",
-            data: {
-                "code": code
-            },
-            "success": function (d) {
-                if (!silent) {
-                    appendConsole(d);
-                }
-            },
-            "error": function (e, b, status) {
-                if (!silent) {
-                    appendConsole($('<span class="label label-danger">' + status + '</span>'));
-                    console.log("error", status);
-                }
-            }
-        });
-    }
-
-    function runCode(silent) {
-        $("#runcode").addClass("disabled");
-        sendCode(editor.getValue(), silent).complete(function () {
-            $("#runcode").removeClass("disabled");
-        });
-    }
 
     $("#runcode").click(function () {
         console.log("WHY");
