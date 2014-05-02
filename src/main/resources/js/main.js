@@ -30,7 +30,7 @@ function stdout(args) {
  ["Username", "World"]);
  */
 function writeTable(table, header) {
-    write('<table class="table table-bordered">');
+    write('<table class="table">');
     if (header) {
         write('<tr>');
         header.forEach(function (head) {

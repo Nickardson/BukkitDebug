@@ -63,6 +63,12 @@
 
 <div class="container-fluid">
     <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <h3>Plugins</h3>
+            <div id="plugins"></div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-sm-12 col-md-6">
             <h3 id="code">Code</h3>
             <div id="editor"></div>
@@ -119,12 +125,28 @@ $(function() {
     editor.load("/code/example.js");
 
     $("#runcode").click(function () {
-        console.log("WHY");
         runCode();
     });
 
     $("#clearconsole").click(function () {
         $("#consoleoutput").empty();
+    });
+
+    $.ajax({
+        url: "/js/server/plugins.js",
+        dataType: "text"
+    }).done(function (code) {
+        $("#plugins").load("/eval/", {
+            "code": code
+        });
+    });
+
+    $("body").on("click", ".plugin-enable", function () {
+        sendCode('Bukkit.pluginManager.enablePlugin("' + $(this).data("plugin") + '")');
+    }).on("click", ".plugin-disable", function () {
+        sendCode('Bukkit.pluginManager.disablePlugin("' + $(this).data("plugin") + '")');
+    }).on("click", ".plugin-query", function () {
+        sendCode('enabled=Bukkit.pluginManager.isPluginEnabled("' + $(this).data("plugin") + '"); write("<script>alert("+enabled+")<\/script>");');
     });
 });
 </script>
