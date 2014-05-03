@@ -3,6 +3,9 @@ package com.nickardson.bukkitdebug;
 import com.nickardson.bukkitdebug.script.JavaScriptEngine;
 import com.nickardson.bukkitdebug.script.Stringifier;
 import com.nickardson.bukkitdebug.web.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -55,7 +58,7 @@ public class BukkitDebug extends JavaPlugin {
             try {
                 stopServer();
             } catch (Exception e) {
-                getLogger().severe("Unable to stop BukkitDebug server!");
+                error("Unable to stop BukkitDebug server!");
                 e.printStackTrace();
             }
         }
@@ -85,9 +88,9 @@ public class BukkitDebug extends JavaPlugin {
         try {
             server.start();
         } catch (BindException e) {
-            getLogger().severe("The BukkitDebug server port is already in use, by either another BukkitDebug instance, or another program!");
+            error("The BukkitDebug server port is already in use, by either another BukkitDebug instance, or another program!");
         } catch (Exception e) {
-            getLogger().severe("Unable to start BukkitDebug server!");
+            error("Unable to start BukkitDebug server!");
             e.printStackTrace();
         }
     }
@@ -99,12 +102,22 @@ public class BukkitDebug extends JavaPlugin {
                 try {
                     server.stop();
                 } catch (Exception e) {
-                    getLogger().severe("Unable to stop BukkitDebug server!");
+                    error("Unable to stop BukkitDebug server!");
                     e.printStackTrace();
                 }
             }
         }).start();
 
         server.join();
+    }
+
+    public static void error(String message) {
+        ConsoleCommandSender consoleSender = Bukkit.getConsoleSender();
+
+        if (consoleSender != null) {
+            consoleSender.sendMessage(ChatColor.RED + "[BukkitDebug] " + message);
+        } else {
+            BukkitDebug.getPlugin(BukkitDebug.class).getLogger().severe(message);
+        }
     }
 }
