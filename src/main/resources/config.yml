@@ -12,3 +12,6 @@ username: admin
 # CHANGE IT!
 # Anybody who has the username and password has control over your server!
 password: password
+
+# Whether to enable extra logging related to the debug server.
+internal-logging: false

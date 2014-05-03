@@ -51,6 +51,11 @@ public class BukkitDebug extends JavaPlugin {
             }
         }
 
+        // Disable Jetty logging.
+        if (!getConfigurationInternalLogging()) {
+            org.eclipse.jetty.util.log.Log.setLog(new DummyLogger());
+        }
+
         server = new Server(getConfigurationPort());
         server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
 
@@ -109,6 +114,10 @@ public class BukkitDebug extends JavaPlugin {
             getLogger().severe("Unable to stop BukkitDebug server!");
             e.printStackTrace();
         }
+    }
+
+    public boolean getConfigurationInternalLogging() {
+        return getConfig().getBoolean("internal-logging", false);
     }
 
     public boolean getConfigurationEnabled() {
