@@ -9,6 +9,23 @@ import java.util.jar.JarFile;
 
 public class FileUtils {
 
+    public static void tryExtractFolder(File jar, String classpathFolder, File destination) {
+        if (!destination.exists() || !destination.isDirectory()) {
+            destination.mkdir();
+
+            for (String filename : FileUtils.dir(jar, classpathFolder)) {
+                File fileDest = new File(destination, filename.substring(classpathFolder.length() + 1));
+                fileDest.getParentFile().mkdirs();
+                try {
+                    FileUtils.copyResourceToFile("/" + filename, fileDest);
+                } catch (IOException e) {
+                    BukkitDebug.getPlugin(BukkitDebug.class).getLogger().severe("Unable to extract: " + filename);
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static List<String> dir(File jarFile, final String path) {
         final List<String> ls = new ArrayList<String>();
 

@@ -6,12 +6,10 @@ import com.nickardson.bukkitdebug.web.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.MultipartConfigElement;
 import java.io.File;
-import java.io.IOException;
+import java.net.BindException;
 
 public class BukkitDebug extends JavaPlugin {
     final String HTDOCS_ROOT = "htdocs";
@@ -20,13 +18,17 @@ public class BukkitDebug extends JavaPlugin {
     public Server server;
     public JavaScriptEngine engine;
     public Stringifier stringifier;
+    public Config config;
+
+    File htdocs;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
-        if (!getConfigurationEnabled()) {
+        config = new Config(getConfig());
+        if (!config.isEnabled()) {
             getLogger().severe("------------------------------------------------");
             getLogger().severe("BukkitDebug is NOT enabled!");
             getLogger().severe("Configure a password in the config, then enable.");
@@ -34,29 +36,33 @@ public class BukkitDebug extends JavaPlugin {
             return;
         }
 
-        File htdocs = new File(getDataFolder(), HTDOCS_DESTINATION);
-
-        if (!htdocs.exists() || !htdocs.isDirectory()) {
-            htdocs.mkdir();
-
-            for (String filename : FileUtils.dir(getFile(), HTDOCS_ROOT)) {
-                File destination = new File(htdocs, filename.substring(HTDOCS_ROOT.length() + 1));
-                destination.getParentFile().mkdirs();
-                try {
-                    FileUtils.copyResourceToFile("/" + filename, destination);
-                } catch (IOException e) {
-                    getLogger().severe("Unable to extract: " + filename);
-                    e.printStackTrace();
-                }
-            }
-        }
+        htdocs = new File(getDataFolder(), HTDOCS_DESTINATION);
+        FileUtils.tryExtractFolder(getFile(), HTDOCS_ROOT, htdocs);
 
         // Disable Jetty logging.
-        if (!getConfigurationInternalLogging()) {
+        if (!config.isLogging()) {
             org.eclipse.jetty.util.log.Log.setLog(new DummyLogger());
         }
 
-        server = new Server(getConfigurationPort());
+        startServer();
+
+        engine = new JavaScriptEngine();
+    }
+
+    @Override
+    public void onDisable() {
+        if (server != null) {
+            try {
+                stopServer();
+            } catch (Exception e) {
+                getLogger().severe("Unable to stop BukkitDebug server!");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void startServer() {
+        server = new Server(config.getPort());
         server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
 
         stringifier = new Stringifier();
@@ -64,75 +70,41 @@ public class BukkitDebug extends JavaPlugin {
         HandlerCollection handlers = new HandlerCollection();
         handlers.addHandler(new RootHandler(htdocs));
         handlers.addHandler(new SubHandler("/proxy", new ProxyHandler()));
+        handlers.addHandler(new SubHandler("/eval", new SyncEvalHandler()));
 
         // LoadPlugin handler.
-        ServletContextHandler loadPluginHandler = new ServletContextHandler();
-        loadPluginHandler.setContextPath("/loadplugin");
-        ServletHolder loadPluginHolder = new ServletHolder(new LoadPluginServlet());
-        loadPluginHolder.getRegistration().setMultipartConfig(new MultipartConfigElement(""));
-        loadPluginHandler.addServlet(loadPluginHolder, "/");
+        SubServlet loadPluginHandler = new SubServlet("/loadplugin", new LoadPluginServlet());
+        loadPluginHandler.getHolder().getRegistration().setMultipartConfig(new MultipartConfigElement(""));
         handlers.addHandler(loadPluginHandler);
-
-        handlers.addHandler(new SubHandler("/eval", new SyncEvalHandler()));
 
         // Route all requests through the security handler.
         SecureHandler secureHandler = new SecureHandler(server, handlers);
-        secureHandler.addAccount(getConfigurationUsername(), getConfigurationPassword(), "user");
+        secureHandler.addAccount(config.getUsername(), config.getPassword(), "user");
         server.setHandler(secureHandler);
 
         try {
             server.start();
+        } catch (BindException e) {
+            getLogger().severe("The BukkitDebug server port is already in use, by either another BukkitDebug instance, or another program!");
         } catch (Exception e) {
             getLogger().severe("Unable to start BukkitDebug server!");
             e.printStackTrace();
         }
-
-        engine = new JavaScriptEngine();
     }
 
-    @Override
-    public void onDisable() {
-        if (server == null) {
-            return;
-        }
-
-        try {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        server.stop();
-                    } catch (Exception e) {
-                        getLogger().severe("Unable to stop BukkitDebug server!");
-                        e.printStackTrace();
-                    }
+    private void stopServer() throws InterruptedException {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    server.stop();
+                } catch (Exception e) {
+                    getLogger().severe("Unable to stop BukkitDebug server!");
+                    e.printStackTrace();
                 }
-            }).start();
+            }
+        }).start();
 
-            server.join();
-        } catch (Exception e) {
-            getLogger().severe("Unable to stop BukkitDebug server!");
-            e.printStackTrace();
-        }
-    }
-
-    public boolean getConfigurationInternalLogging() {
-        return getConfig().getBoolean("internal-logging", false);
-    }
-
-    public boolean getConfigurationEnabled() {
-        return getConfig().getBoolean("enabled", false);
-    }
-
-    public int getConfigurationPort() {
-        return getConfig().getInt("port", 13370);
-    }
-
-    public String getConfigurationUsername() {
-        return getConfig().getString("username", "admin");
-    }
-
-    public String getConfigurationPassword() {
-        return getConfig().getString("password", "password");
+        server.join();
     }
 }
