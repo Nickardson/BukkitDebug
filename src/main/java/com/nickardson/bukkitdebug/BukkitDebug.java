@@ -4,14 +4,12 @@ import com.nickardson.bukkitdebug.script.JavaScriptEngine;
 import com.nickardson.bukkitdebug.script.Stringifier;
 import com.nickardson.bukkitdebug.web.*;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.MultipartConfigElement;
 import java.io.File;
 import java.io.IOException;
 
@@ -61,17 +59,16 @@ public class BukkitDebug extends JavaPlugin {
         HandlerCollection handlers = new HandlerCollection();
         handlers.addHandler(new RootHandler(htdocs));
         handlers.addHandler(new SubHandler("/proxy", new ProxyHandler()));
-        handlers.addHandler(new SubHandler("/eval", new SyncEvalHandler()));
-        handlers.addHandler(new SubHandler("/test", new AbstractHandler() {
-            @Override
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-                response.setContentType("text/html;charset=utf-8");
-                response.setStatus(HttpServletResponse.SC_OK);
-                baseRequest.setHandled(true);
 
-                response.getWriter().println("<h1>Hello World</h1>");
-            }
-        }));
+        // LoadPlugin handler.
+        ServletContextHandler loadPluginHandler = new ServletContextHandler();
+        loadPluginHandler.setContextPath("/loadplugin");
+        ServletHolder loadPluginHolder = new ServletHolder(new LoadPluginServlet());
+        loadPluginHolder.getRegistration().setMultipartConfig(new MultipartConfigElement(""));
+        loadPluginHandler.addServlet(loadPluginHolder, "/");
+        handlers.addHandler(loadPluginHandler);
+
+        handlers.addHandler(new SubHandler("/eval", new SyncEvalHandler()));
 
         // Route all requests through the security handler.
         SecureHandler secureHandler = new SecureHandler(server, handlers);

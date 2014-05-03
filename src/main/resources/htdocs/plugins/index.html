@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Dashboard Template for Bootstrap</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+
+    <style>
+        body {
+            padding-top: 50px;
+        }
+
+        .fileinfo th {
+            padding-right: 10px;
+        }
+
+        .file-input-name {
+            display: none;
+        }
+    </style>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <h3>Plugins</h3>
+            <div id="plugins"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <form id="submitform" method="post" action="/loadplugin/" enctype="multipart/form-data">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <table class="fileinfo">
+                            <tr>
+                                <th>Plugin name</th>
+                                <td id="userpluginName"></td>
+                            </tr>
+                            <tr>
+                                <th>Size</th>
+                                <td id="userpluginSize"></td>
+                            </tr>
+                        </table>
+
+                        <input type="file" name="userplugin" id="userplugin" class="btn-primary" title="Choose file">
+                    </div>
+                </div>
+                <input type="submit" class="btn btn-default"/>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Bootstrap file input -->
+<script>(function($){$.fn.bootstrapFileInput=function(){this.each(function(i,elem){var $elem=$(elem);if(typeof $elem.attr('data-bfi-disabled')!='undefined'){return;}
+var buttonWord='Browse';if(typeof $elem.attr('title')!='undefined'){buttonWord=$elem.attr('title');}
+var className='';if(!!$elem.attr('class')){className=' '+$elem.attr('class');}
+$elem.wrap('<a class="file-input-wrapper btn btn-default '+className+'"></a>').parent().prepend($('<span></span>').html(buttonWord));}).promise().done(function(){$('.file-input-wrapper').mousemove(function(cursor){var input,wrapper,wrapperX,wrapperY,inputWidth,inputHeight,cursorX,cursorY;wrapper=$(this);input=wrapper.find("input");wrapperX=wrapper.offset().left;wrapperY=wrapper.offset().top;inputWidth=input.width();inputHeight=input.height();cursorX=cursor.pageX;cursorY=cursor.pageY;moveInputX=cursorX-wrapperX-inputWidth+20;moveInputY=cursorY-wrapperY-(inputHeight/2);input.css({left:moveInputX,top:moveInputY});});$('body').on('change','.file-input-wrapper input[type=file]',function(){var fileName;fileName=$(this).val();$(this).parent().next('.file-input-name').remove();if(!!$(this).prop('files')&&$(this).prop('files').length>1){fileName=$(this)[0].files.length+' files';}
+else{fileName=fileName.substring(fileName.lastIndexOf('\\')+1,fileName.length);}
+if(!fileName){return;}
+var selectedFileNamePlacement=$(this).data('filename-placement');if(selectedFileNamePlacement==='inside'){$(this).siblings('span').html(fileName);$(this).attr('title',fileName);}else{$(this).parent().after('<span class="file-input-name">'+fileName+'</span>');}});});};var cssHtml='<style>'+'.file-input-wrapper { overflow: hidden; position: relative; cursor: pointer; z-index: 1; }'+'.file-input-wrapper input[type=file], .file-input-wrapper input[type=file]:focus, .file-input-wrapper input[type=file]:hover { position: absolute; top: 0; left: 0; cursor: pointer; opacity: 0; filter: alpha(opacity=0); z-index: 99; outline: 0; }'+'.file-input-name { margin-left: 8px; }'+'</style>';$('link[rel=stylesheet]').eq(0).before(cssHtml);})(jQuery);</script>
+
+<script>
+$(function () {
+    $("#navbar").load("/ajax/navbar.html");
+
+    $.ajax({
+        url: "/js/server/plugins.js",
+        dataType: "text"
+    }).done(function (code) {
+        $("#plugins").load("/eval/", {
+            "code": code
+        });
+    });
+
+    function sendCode(code, silent) {
+        return $.ajax({
+            url: "/eval",
+            data: {
+                "code": code
+            },
+            "success": function (d) {
+                if (!silent) {
+                    $("<div></div>").append(d).appendTo("body");
+                }
+            },
+            "error": function (e, b, status) {
+                if (!silent) {
+                    console.log("error", status);
+                }
+            }
+        });
+    }
+
+    $("body").on("click", ".plugin-enable", function () {
+        sendCode('m=Bukkit.pluginManager;m.enablePlugin(m.getPlugin("' + $(this).data("plugin") + '"))');
+    }).on("click", ".plugin-disable", function () {
+        sendCode('m=Bukkit.pluginManager;m.disablePlugin(m.getPlugin("' + $(this).data("plugin") + '"))');
+    }).on("click", ".plugin-query", function () {
+        sendCode('enabled=Bukkit.pluginManager.isPluginEnabled("' + $(this).data("plugin") + '"); write("<script>alert("+enabled+")<\/script>");');
+    });
+
+    $("#userplugin").change(function (e) {
+        console.log("changed file", e);
+        var file = $(this)[0].files[0];
+        $("#userpluginName").html(file.name);
+
+        var size = file.size;
+        var units = ["bytes", "kb", "mb", "gb", "tb"],
+            unitDepth = 0;
+        while (size > 1024) {
+            size = size / 1024;
+            unitDepth++;
+        }
+        $("#userpluginSize").html(Math.floor(size) + " " + units[unitDepth]);
+    }).bootstrapFileInput();
+});
+</script>
+</body>
+</html>
