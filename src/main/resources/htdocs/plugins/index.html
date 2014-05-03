@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Dashboard Template for Bootstrap</title>
+    <title>Plugins - BukkitDebug</title>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css"/>
 
@@ -56,9 +56,9 @@
                         </table>
 
                         <input type="file" name="userplugin" id="userplugin" class="btn-primary" title="Choose file">
+                        <input type="submit" class="btn btn-default" value="Upload"/>
                     </div>
                 </div>
-                <input type="submit" class="btn btn-default"/>
             </form>
         </div>
     </div>
@@ -112,6 +112,8 @@ $(function () {
         sendCode('m=Bukkit.pluginManager;m.enablePlugin(m.getPlugin("' + $(this).data("plugin") + '"))');
     }).on("click", ".plugin-disable", function () {
         sendCode('m=Bukkit.pluginManager;m.disablePlugin(m.getPlugin("' + $(this).data("plugin") + '"))');
+    }).on("click", ".plugin-reload", function () {
+        sendCode('m=Bukkit.pluginManager;p=m.getPlugin("' + $(this).data("plugin") + '");m.disablePlugin(p);m.enablePlugin(p);');
     }).on("click", ".plugin-query", function () {
         sendCode('enabled=Bukkit.pluginManager.isPluginEnabled("' + $(this).data("plugin") + '"); write("<script>alert("+enabled+")<\/script>");');
     });
