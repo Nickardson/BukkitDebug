@@ -87,7 +87,7 @@ public class BukkitDebug extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (server == null || server.isRunning()) {
+        if (server == null) {
             return;
         }
 
