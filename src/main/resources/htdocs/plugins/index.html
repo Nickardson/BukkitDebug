@@ -21,6 +21,11 @@
         .file-input-name {
             display: none;
         }
+
+        .popoverbtn {
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
     </style>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -34,7 +39,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-12 col-md-12">
+        <div class="col-sm-12 col-md-6 col-md-offset-3">
             <h3>Plugins</h3>
             <div id="plugins"></div>
         </div>
@@ -64,6 +69,22 @@
     </div>
 </div>
 
+<!-- Plugin info modal -->
+<div id="plugin-info-modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Plugin info</h4>
+            </div>
+            <div id="plugin-info" class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 
@@ -89,33 +110,44 @@ $(function () {
         });
     });
 
-    function sendCode(code, silent) {
+    function sendCode(code, callback) {
         return $.ajax({
             url: "/eval",
             data: {
                 "code": code
             },
             "success": function (d) {
-                if (!silent) {
-                    $("<div></div>").append(d).appendTo("body");
-                }
+                callback();
             },
             "error": function (e, b, status) {
-                if (!silent) {
-                    console.log("error", status);
-                }
+                callback();
             }
         });
     }
 
-    $("body").on("click", ".plugin-enable", function () {
-        sendCode('m=Bukkit.pluginManager;m.enablePlugin(m.getPlugin("' + $(this).data("plugin") + '"))');
-    }).on("click", ".plugin-disable", function () {
-        sendCode('m=Bukkit.pluginManager;m.disablePlugin(m.getPlugin("' + $(this).data("plugin") + '"))');
+    $("body").on("click", ".plugin-toggle", function () {
+        sendCode('m=Bukkit.pluginManager;p=m.getPlugin("' + $(this).data("plugin") + '");if(p.isEnabled()){m.disablePlugin(p)}else{m.enablePlugin(p)}', function () {
+            window.location.reload(true);
+        });
     }).on("click", ".plugin-reload", function () {
-        sendCode('m=Bukkit.pluginManager;p=m.getPlugin("' + $(this).data("plugin") + '");m.disablePlugin(p);m.enablePlugin(p);');
+        sendCode('m=Bukkit.pluginManager;p=m.getPlugin("' + $(this).data("plugin") + '");m.disablePlugin(p);m.enablePlugin(p);', function () {
+            window.location.reload(true);
+        });
     }).on("click", ".plugin-query", function () {
-        sendCode('enabled=Bukkit.pluginManager.isPluginEnabled("' + $(this).data("plugin") + '"); write("<script>alert("+enabled+")<\/script>");');
+        var btn = $(this).addClass("disabled");
+
+        $.ajax({
+            url: "/js/server/plugin_query.js",
+            dataType: "text"
+        }).done(function (code) {
+            $("#plugin-info").load("/eval/", {
+                "code": code,
+                "name": btn.data("plugin")
+            }, function () {
+                btn.removeClass("disabled");
+                $("#plugin-info-modal").modal();
+            });
+        });
     });
 
     $("#userplugin").change(function (e) {

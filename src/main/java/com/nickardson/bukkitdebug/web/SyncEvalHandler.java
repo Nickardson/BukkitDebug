@@ -23,6 +23,7 @@ public class SyncEvalHandler extends AbstractHandler {
             try {
                 ScriptableObject scope = plugin.engine.createScope();
                 scope.put("output", scope, response.getWriter());
+                scope.put("args", scope, baseRequest.getParameterMap());
                 String result = plugin.stringifier.stringify(plugin.engine.eval(scope, code, "code"));
                 if (!result.equals("undefined")) {
                     response.getWriter().write(result);
