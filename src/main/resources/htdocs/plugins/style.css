@@ -1,0 +1,16 @@
+body {
+    padding-top: 50px;
+}
+
+.fileinfo th {
+    padding-right: 10px;
+}
+
+.file-input-name {
+    display: none;
+}
+
+.popoverbtn {
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
