@@ -10,32 +10,24 @@ $(function () {
         });
     });
 
-    function sendCode(code, callback) {
-        return $.ajax({
-            url: "/eval",
+    function pluginAction(name, action) {
+        $.ajax({
+            url: "/api/plugin/",
             data: {
-                "code": code
-            },
-            "success": function () {
-                callback();
-            },
-            "error": function () {
-                callback();
+                name: name,
+                action: action
             }
+        }).done(function () {
+            window.location.reload(true);
         });
     }
 
     $("body").on("click", ".plugin-toggle", function () {
-        sendCode('m=Bukkit.pluginManager;p=m.getPlugin("' + $(this).data("plugin") + '");if(p.isEnabled()){m.disablePlugin(p)}else{m.enablePlugin(p)}', function () {
-            window.location.reload(true);
-        });
+        pluginAction($(this).data("plugin"), "toggle");
     }).on("click", ".plugin-reload", function () {
-        sendCode('m=Bukkit.pluginManager;p=m.getPlugin("' + $(this).data("plugin") + '");m.disablePlugin(p);m.enablePlugin(p);', function () {
-            window.location.reload(true);
-        });
+        pluginAction($(this).data("plugin"), "reload");
     }).on("click", ".plugin-query", function () {
         var btn = $(this).addClass("disabled");
-
         $.ajax({
             url: "/js/server/plugin_query.js",
             dataType: "text"

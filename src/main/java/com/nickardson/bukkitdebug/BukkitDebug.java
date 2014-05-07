@@ -74,6 +74,7 @@ public class BukkitDebug extends JavaPlugin {
         handlers.addHandler(new RootHandler(htdocs));
         handlers.addHandler(new SubHandler("/proxy", new ProxyHandler()));
         handlers.addHandler(new SubHandler("/eval", new SyncEvalHandler()));
+        handlers.addHandler(new SubHandler("/api/plugin", new PluginHandler()));
 
         // LoadPlugin handler.
         SubServlet loadPluginHandler = new SubServlet("/loadplugin", new LoadPluginServlet());
