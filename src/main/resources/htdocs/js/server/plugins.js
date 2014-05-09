@@ -8,8 +8,8 @@ Bukkit.pluginManager.plugins.forEach(function (plugin) {
     if (name == 'BukkitDebug') {
         table.push([
             name,
-            '<span class="label label-success">N/A</span>',
-            '<span class="label label-primary">N/A</span>',
+            '<button class="disabled btn btn-success disabled"><span class="glyphicon glyphicon-ok"></span></button>',
+            '<button class="disabled btn btn-primary disabled"><span class="glyphicon glyphicon-refresh"></span></button>',
             infoButton
         ])
     } else {

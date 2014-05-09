@@ -33,35 +33,41 @@ function inspectFields(query) {
  * @returns {HTMLElement}
  */
 function json2html(data, singlekey) {
-    if (typeof(data) == 'object') {
-        var ul = $('<ul>');
-        for (var i in data) {
-            if (i == "displaytype") {
-                continue;
-            }
+    var res = "";
 
-            if (data.hasOwnProperty(i)) {
-                var li = $('<li data-key="' + String(i) + '">'),
-                    key = $('<span class="json-key">' + i + '</span>'),
-                    json = json2html(data[i]);
-
-                li.append(key);
-
-                if (typeof data[i] == "object") {
-                    if (data[i].displaytype) {
-                        li.append('<span class="json-type"> (' + data[i].displaytype + ')</span>');
-                    }
+    function conv(data, singlekey) {
+        if (typeof(data) == 'object') {
+            res += ('<ul>');
+            for (var i in data) {
+                if (i == "displaytype") {
+                    continue;
                 }
 
-                li.append(json);
-                ul.append(li);
+                if (data.hasOwnProperty(i)) {
+                    res += ('<li data-key="' + String(i) + '">');
+                    res += ('<span class="json-key">' + i + '</span>');
+                    res += (conv(data[i]));
+
+                    if (typeof data[i] == "object") {
+                        if (data[i].displaytype) {
+                            res += ('<span class="json-type"> (' + data[i].displaytype + ')</span>');
+                        }
+                    }
+
+                    res += ('</li>');
+                }
             }
+            res += ('</ul>');
+        } else {
+            res = '<span>' + (singlekey ? '<span class="json-key">'+singlekey+'</span>' : '') + ': ' + data + '</span>';
         }
-        return ul;
-    } else {
-        return $('<span>' + (singlekey ? '<span class="json-key">'+singlekey+'</span>' : '') + ': ' + data + '</span>');
     }
+
+    conv(data, singlekey);
+
+    return res;
 }
+
 
 /**
  * Turns a group of lists into a collapsable group.

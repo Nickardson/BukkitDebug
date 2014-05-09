@@ -69,7 +69,7 @@ function writeList(list) {
 
 function writeCollapsable(title, contents) {
     var randomID = "id" + String(Math.random()).substr(2);
-    write('<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#'+randomID+'">');
+    write('<div><h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#'+randomID+'">');
     write(title);
     write('</a></h4></div><div id="'+randomID+'" class="panel-collapse collapse out"><div class="panel-body">');
     if (typeof contents == "function") {
