@@ -1,13 +1,8 @@
 $(function () {
     $("#navbar").load("/ajax/navbar.html");
 
-    $.ajax({
-        url: "/js/server/plugins.js",
-        dataType: "text"
-    }).done(function (code) {
-        $("#plugins").load("/eval/", {
-            "code": code
-        });
+    $("#plugins").load("/api/run/", {
+        "file": 'js/server/plugins.js'
     });
 
     function pluginAction(name, action) {
@@ -28,17 +23,18 @@ $(function () {
         pluginAction($(this).data("plugin"), "reload");
     }).on("click", ".plugin-query", function () {
         var btn = $(this).addClass("disabled");
+
         $.ajax({
-            url: "/js/server/plugin_query.js",
-            dataType: "text"
-        }).done(function (code) {
-            $("#plugin-info").load("/eval/", {
-                "code": code,
-                "name": btn.data("plugin")
-            }, function () {
+            url: "/api/run/",
+            dataType: "text",
+            data: {
+                file: 'js/server/plugin_query.js',
+                name: btn.data("plugin")
+            },
+            success: function () {
                 btn.removeClass("disabled");
                 $("#plugin-info-modal").modal();
-            });
+            }
         });
     });
 
