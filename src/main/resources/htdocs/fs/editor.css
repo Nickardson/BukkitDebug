@@ -1,0 +1,57 @@
+html, body {
+    height: 100%;
+}
+
+#pane {
+    position: absolute;
+    height: 100%;
+    padding: 4px;
+    overflow-y: scroll;
+}
+
+#editor {
+    position: absolute;
+    height: 100%;
+}
+
+@media (max-width: 860px) {
+    #pane {
+        width: 30%;
+    }
+
+    #editor {
+        left: 30%;
+        width: 70%;
+    }
+}
+
+@media (min-width: 860px) {
+    #pane {
+        width: 20%;
+    }
+
+    #editor {
+        left: 20%;
+        width: 80%;
+    }
+}
+
+.fs-icon {
+    margin-right: 5px;
+}
+
+.folder, .file {
+    cursor: pointer;
+}
+
+.folder>.file-header {
+    color: #416CC9
+}
+
+.folder>ul {
+    padding-left: 18px;
+}
+
+.folder-root>ul {
+    padding-left: 0;
+}
