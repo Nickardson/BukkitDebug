@@ -2,121 +2,57 @@ package com.nickardson.bukkitdebug;
 
 import com.nickardson.bukkitdebug.script.JavaScriptEngine;
 import com.nickardson.bukkitdebug.script.Stringifier;
-import com.nickardson.bukkitdebug.web.*;
+import com.nickardson.bukkitdebug.web.BukkitDebugServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.resource.Resource;
 
-import javax.servlet.MultipartConfigElement;
 import java.io.File;
-import java.net.BindException;
 
 public class BukkitDebug extends JavaPlugin {
     public final String HTDOCS_ROOT = "htdocs";
     public final String HTDOCS_DESTINATION = "htdocs";
 
-    public Server server;
     public JavaScriptEngine engine;
     public Stringifier stringifier;
     public Config config;
+    public BukkitDebugServer server;
 
     public Resource htdocs;
-
-    public File getJarFile() {
-        return getFile();
-    }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        this.saveDefaultConfig();
 
         config = new Config(getConfig());
         if (!config.isEnabled()) {
-            getLogger().severe("------------------------------------------------");
-            getLogger().severe("BukkitDebug is NOT enabled!");
-            getLogger().severe("Configure a password in the config, then enable.");
-            getLogger().severe("------------------------------------------------");
+            showEnableMessage();
             return;
         }
-
-        htdocs = getRootResource();
 
         // Disable Jetty logging.
         if (!config.isLogging()) {
             org.eclipse.jetty.util.log.Log.setLog(new DummyLogger());
         }
 
-        startServer();
-
+        htdocs = getRootResource();
+        stringifier = new Stringifier();
+        server = new BukkitDebugServer().start();
         engine = new JavaScriptEngine();
     }
 
     @Override
     public void onDisable() {
-        if (server != null) {
-            try {
-                stopServer();
-            } catch (Exception e) {
-                error("Unable to stop BukkitDebug server!");
-                e.printStackTrace();
-            }
-        }
+        server.stop();
     }
 
-    private void startServer() {
-        server = new Server(config.getPort());
-        server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
-
-        stringifier = new Stringifier();
-
-        HandlerCollection handlers = new HandlerCollection();
-        handlers.addHandler(new RootHandler());
-        handlers.addHandler(new SubHandler("/proxy", new ProxyHandler()));
-        handlers.addHandler(new SubHandler("/eval", new SyncEvalHandler()));
-        handlers.addHandler(new SubHandler("/api/plugin", new PluginHandler()));
-        handlers.addHandler(new SubHandler("/api/run", new RunFileHandler(htdocs)));
-
-        // LoadPlugin handler.
-        SubServlet loadPluginHandler = new SubServlet("/loadplugin", new LoadPluginServlet());
-        loadPluginHandler.getHolder().getRegistration().setMultipartConfig(new MultipartConfigElement(""));
-        handlers.addHandler(loadPluginHandler);
-
-        // Route all requests through the security handler.
-        SecureHandler secureHandler = new SecureHandler(server, handlers);
-        secureHandler.addAccount(config.getUsername(), config.getPassword(), "user");
-        server.setHandler(secureHandler);
-
-        try {
-            server.start();
-        } catch (BindException e) {
-            error("The BukkitDebug server port is already in use, by either another BukkitDebug instance, or another program!");
-        } catch (Exception e) {
-            error("Unable to start BukkitDebug server!");
-            e.printStackTrace();
-        }
-    }
-
-    private void stopServer() throws InterruptedException {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    server.stop();
-                } catch (Exception e) {
-                    error("Unable to stop BukkitDebug server!");
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-        server.join();
-    }
-
+    /**
+     * Writes an red error message
+     * @param message The message to write out.
+     */
     public static void error(String message) {
         ConsoleCommandSender consoleSender = Bukkit.getConsoleSender();
 
@@ -139,5 +75,23 @@ public class BukkitDebug extends JavaPlugin {
         } else {
             return Resource.newClassPathResource("htdocs");
         }
+    }
+
+    /**
+     * Gets the plugin jar file.
+     * @return The plugin jar file.
+     */
+    public File getJarFile() {
+        return getFile();
+    }
+
+    /**
+     * Shows a message telling the user to enable in the config.
+     */
+    private void showEnableMessage() {
+        getLogger().severe("------------------------------------------------");
+        getLogger().severe("BukkitDebug is NOT enabled!");
+        getLogger().severe("Configure a password in the config, then enable.");
+        getLogger().severe("------------------------------------------------");
     }
 }
