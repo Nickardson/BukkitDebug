@@ -13,12 +13,12 @@ editor.load = function(url){
 };
 
 function scrollConsoleDown() {
-    var out = $("#consoleoutput")[0];
+    var out = $("#console-output")[0];
     out.scrollTop = out.scrollHeight;
 }
 
 function appendConsole(d) {
-    $("<div>").appendTo("#consoleoutput").append(d);
+    $("<div>").appendTo("#console-output").append(d);
     scrollConsoleDown();
 }
 
