@@ -1,21 +1,16 @@
 package com.nickardson.bukkitdebug.web;
 
+import com.nickardson.bukkitdebug.BukkitDebug;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.resource.Resource;
-
-import java.io.File;
 
 /**
  * A ResourceHandler which displays sub-files given a root file.
  */
 public class RootHandler extends ResourceHandler {
-    /**
-     * @param root The base directory of the server.
-     */
-    public RootHandler(File root) {
+    public RootHandler() {
         super();
 
         setDirectoriesListed(true);
-        setBaseResource(Resource.newResource(root));
+        setBaseResource(BukkitDebug.getPlugin(BukkitDebug.class).htdocs);
     }
 }

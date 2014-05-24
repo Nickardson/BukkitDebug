@@ -3,20 +3,20 @@ package com.nickardson.bukkitdebug.web;
 import com.nickardson.bukkitdebug.BukkitDebug;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.resource.Resource;
 import org.mozilla.javascript.ScriptableObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
 public class RunFileHandler extends AbstractHandler {
 
-    File htdocs;
+    Resource htdocs;
 
-    public RunFileHandler(File root) {
+    public RunFileHandler(Resource root) {
         htdocs = root;
     }
 
@@ -24,7 +24,9 @@ public class RunFileHandler extends AbstractHandler {
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         baseRequest.setHandled(true);
 
-        Scanner scanner = new Scanner(new File(htdocs, baseRequest.getParameter("file"))).useDelimiter("\\Z");
+        Scanner scanner = new Scanner(htdocs.getResource(baseRequest.getParameter("file")).getInputStream());
+        scanner.useDelimiter("\\Z");
+
         String code = scanner.next();
         scanner.close();
 

@@ -9,21 +9,26 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.util.resource.Resource;
 
 import javax.servlet.MultipartConfigElement;
 import java.io.File;
 import java.net.BindException;
 
 public class BukkitDebug extends JavaPlugin {
-    final String HTDOCS_ROOT = "htdocs";
-    final String HTDOCS_DESTINATION = "htdocs";
+    public final String HTDOCS_ROOT = "htdocs";
+    public final String HTDOCS_DESTINATION = "htdocs";
 
     public Server server;
     public JavaScriptEngine engine;
     public Stringifier stringifier;
     public Config config;
 
-    File htdocs;
+    public Resource htdocs;
+
+    public File getJarFile() {
+        return getFile();
+    }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
@@ -39,8 +44,7 @@ public class BukkitDebug extends JavaPlugin {
             return;
         }
 
-        htdocs = new File(getDataFolder(), HTDOCS_DESTINATION);
-        FileUtils.tryExtractFolder(getFile(), HTDOCS_ROOT, htdocs);
+        htdocs = getRootResource();
 
         // Disable Jetty logging.
         if (!config.isLogging()) {
@@ -71,7 +75,7 @@ public class BukkitDebug extends JavaPlugin {
         stringifier = new Stringifier();
 
         HandlerCollection handlers = new HandlerCollection();
-        handlers.addHandler(new RootHandler(htdocs));
+        handlers.addHandler(new RootHandler());
         handlers.addHandler(new SubHandler("/proxy", new ProxyHandler()));
         handlers.addHandler(new SubHandler("/eval", new SyncEvalHandler()));
         handlers.addHandler(new SubHandler("/api/plugin", new PluginHandler()));
@@ -120,6 +124,20 @@ public class BukkitDebug extends JavaPlugin {
             consoleSender.sendMessage(ChatColor.RED + "[BukkitDebug] " + message);
         } else {
             BukkitDebug.getPlugin(BukkitDebug.class).getLogger().severe(message);
+        }
+    }
+
+    /**
+     * Gets the jetty resource for the htdocs root.
+     * @return The root resource.
+     */
+    private Resource getRootResource() {
+        if (config.isExternalRoot()) {
+            File destination = new File(getDataFolder(), HTDOCS_DESTINATION);
+            FileUtils.tryExtractFolder(getJarFile(), HTDOCS_ROOT, destination);
+            return Resource.newResource(destination);
+        } else {
+            return Resource.newClassPathResource("htdocs");
         }
     }
 }

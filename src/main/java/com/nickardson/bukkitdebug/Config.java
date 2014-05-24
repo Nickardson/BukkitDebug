@@ -28,4 +28,12 @@ public class Config {
     public String getPassword() {
         return config.getString("password", "password");
     }
+
+    /**
+     * Gets the whether the root file for server documents is in an external directory.
+     * @return Whether the server documents are external.
+     */
+    public boolean isExternalRoot() {
+        return config.getBoolean("external-root", false);
+    }
 }

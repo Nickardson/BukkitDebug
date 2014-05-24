@@ -1,17 +1,26 @@
-# Whether BukkitDebug is enabled.  Disabled by default, so CHANGE YOUR PASSWORD BEFORE ENABLING!
+# Whether BukkitDebug is enabled.  Disabled by default, so you can CHANGE YOUR PASSWORD BEFORE ENABLING!
 # To enable, change to 'true'.
 enabled: false
 
-# The port of the debug server.
-port: 13370
-
-# Debug server username.
-username: admin
-
-# Debug server password.
-# CHANGE IT!
+# Server login credentials.
+# CHANGE YOUR PASSWORD!
 # Anybody who has the username and password has control over your server!
+username: admin
 password: password
 
-# Whether to enable extra logging related to the debug server.
+
+
+#### Advanced options ####
+## Most use cases usually don't involve changing these.
+
+# The port of the BukkitDebug server.
+# If you get a message telling you that the BukkitDebug server port is in use, you may need to change this port.
+port: 13370
+
+# Whether to enable extra logging related to the internal server.
+# For example, stack traces for internal errors.
 internal-logging: false
+
+# Whether to copy server resource to a directory, instead of using the files contained in the plugin jar.
+# When 'true', this allows you to easily modify server pages and scripts.
+external-root: false
