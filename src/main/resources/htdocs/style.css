@@ -1,0 +1,27 @@
+.cto {
+    background-color: rgb(72, 112, 185);
+    padding: 20px;
+    color: white;
+}
+
+.cto p {
+    text-indent: 2em;
+}
+
+.cto a {
+    color: rgb(157, 206, 238);
+}
+
+.cto ul {
+    list-style-type: none;
+}
+
+.navbar {
+    margin-bottom: 0;
+}
+
+.media-icon {
+    color: rgb(94, 184, 255);
+    font-size: 2em;
+    margin-left: 10px;
+}
