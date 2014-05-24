@@ -1,0 +1,15 @@
+#editor-container {
+    margin-top: 10px;
+}
+
+#console-output {
+    margin-left: 5px;
+    border-left: 3px solid rgb(255, 122, 0);
+    padding-left: 10px;
+}
+
+#editor-buttons {
+    padding-left: 20px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}

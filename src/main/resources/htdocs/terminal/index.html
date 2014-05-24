@@ -8,29 +8,31 @@
     <title>Dashboard - BukkitDebug</title>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/global.css"/>
     <link rel="stylesheet" href="style.css"/>
 </head>
 
 <body>
 <div id="navbar"></div>
 
+<div class="panel" id="editor-buttons">
+    <button id="runcode" class="btn btn-primary">Run <i class="glyphicon glyphicon-play"></i></button>
+    <button id="clearconsole" class="btn btn-default">Clear <i class="glyphicon glyphicon-remove"></i></button>
+</div>
+
 <div id="editor-container"><div id="editor"></div></div>
 
 <div id="output-container">
     <div id="output">
-        <button id="runcode" class="btn btn-primary">Run <i class="glyphicon glyphicon-play"></i></button>
-        <button id="clearconsole" class="btn btn-default">Clear <i class="glyphicon glyphicon-remove"></i></button>
-
         <h3>Output</h3>
-        <div class="panel" id="console-output"></div>
+        <div id="console-output"></div>
     </div>
 </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/ace/ace.js"></script>
-<script src="/js/editor.js"></script>
-<script src="/js/index.js"></script>
+<script src="index.js"></script>
 
 </body>
 </html>

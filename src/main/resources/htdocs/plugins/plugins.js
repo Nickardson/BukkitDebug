@@ -31,8 +31,9 @@ $(function () {
                 file: 'js/server/plugin_query.js',
                 name: btn.data("plugin")
             },
-            success: function () {
+            success: function (data) {
                 btn.removeClass("disabled");
+                $("#plugin-info").html(data);
                 $("#plugin-info-modal").modal();
             }
         });
