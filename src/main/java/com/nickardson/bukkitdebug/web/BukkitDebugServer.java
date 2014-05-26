@@ -26,6 +26,8 @@ public class BukkitDebugServer {
         handlers.addHandler(new SubHandler("/eval", new SyncEvalHandler()));
         handlers.addHandler(new SubHandler("/api/plugin", new PluginHandler()));
         handlers.addHandler(new SubHandler("/api/run", new RunFileHandler(plugin.htdocs)));
+        handlers.addHandler(new SubHandler("/api/relay", new RelayHandler(plugin.getDataFolder(), "/api/relay/".length())));
+        handlers.addHandler(new SubHandler("/api/zip", new ZipHandler(plugin.getDataFolder(), "/api/zip/".length())));
 
         // LoadPlugin handler.
         SubServlet loadPluginHandler = new SubServlet("/loadplugin", new LoadPluginServlet());
